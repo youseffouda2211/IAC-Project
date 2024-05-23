@@ -1,0 +1,32 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  AZURE_CREDENTIALS: 'azure-secret'
+
+stages:
+- stage: Checkout
+  jobs:
+  - job: CheckoutRepo
+    steps:
+    - checkout: self
+
+- stage: Terraform
+  jobs:
+  - job: TerraformJob
+    steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+        addToPath: true
+
+    - script: |
+        git clone https://github.com/youseffouda2211/IAC-Project
+        cd IAC-Project
+        terraform init
+        terraform plan -out=tfplan
+        terraform apply -auto-approve tfplan
+      displayName: 'Run Terraform commands'
